@@ -1,0 +1,77 @@
+library(stringr)
+library(lubridate)
+
+#files para hacer el loop
+files <- list.files(path="C:/Users/Toshiba UL/Dropbox/semestre 8/data/final/0118-12", pattern="*.csv", full.names=TRUE, recursive=FALSE)
+
+#diccionario de codigos
+dicc = data.frame(matrix(vector(), 10, 2,
+                         dimnames=list(c(), c("Codigo", "ACABADO"))),
+                  stringsAsFactors=F)
+dicc$COD=c("01","02","03","04","05","06","07","08","23","63")
+dicc$ACABADO=c("MF","AN","BR","NE","CH","BL","MRT","AI","MNT","CT")
+
+#columnas que se necesitan
+nombres=c("FECHA","TIENDA","CODPROD","DESCRIPCION","MEDIDA","MT2","UNI","VENTA")
+
+#df donde se va a guardar todo
+table=data.frame()
+
+#loop
+for(file in files){
+  diario <- read.csv(file,header=FALSE)
+  #para la columna de fecha
+  name <- basename(file)
+  diario$FECHA=dmy(substr(name,start=1,stop=6))
+  
+  #nombre de tienda
+  colnames(diario)[which(apply(diario, 2, function(x) any(grepl("BODEGA O TIENDA", x))))[[1]]]="TIENDA"
+  diario$TIENDA=sub(".*: ", "", diario$TIENDA)
+  
+  #columnas que sirven - asumiendo que siempre están 9 después
+  #problamemente se puede optimizar con otro lapply pero no he logrado que sirva
+  colnames(diario)[which(apply(diario, 2, function(x) any(grepl("CODPROD", x))))[[2]]+9]="CODPROD"
+  
+  colnames(diario)[which(apply(diario, 2, function(x) any(grepl("DESCRIPCION", x))))[[2]]+9]="DESCRIPCION"
+  
+  colnames(diario)[which(apply(diario, 2, function(x) any(grepl("MEDIDA", x))))[[2]]+9]="MEDIDA"
+  
+  colnames(diario)[which(apply(diario, 2, function(x) any(grepl("MT2", x))))[[2]]+9]="MT2"
+  
+  colnames(diario)[which(apply(diario, 2, function(x) any(grepl("UNI", x))))[[2]]+9]="UNI"
+  
+  colnames(diario)[which(apply(diario, 2, function(x) any(grepl("\\VENTA\\b", x))))[[2]]+9]="VENTA"
+  
+  #subset de estas columnas
+  diario=diario[,nombres]
+  
+  #quitarle lo que está en parentesis
+  diario$DESCRIPCION=gsub("\\s*\\([^\\)]+\\)","",as.character(diario$DESCRIPCION))
+  
+  #precio unitario
+  diario$PRECIOUNITARIO=diario$VENTA/diario$UNI
+  
+  #quitar las ' que están en algunas dimensiones (también se podrían remplazar todas las X mayúsuculas
+  #por minúsculas para consistencia)
+  diario$DESCRIPCION=gsub("\"","",diario$DESCRIPCION)
+  
+  #separar los primeros dos numeros del codigo para el diccionario
+  diario$COD=substr(diario$CODPROD,start=1,stop=2)
+  
+  #merge de esto con el diccionario
+  diario=merge(diario,dicc,by="COD",all.x = TRUE)
+  
+  #eliminar la columna que se hizo
+  diario$Codigo=NULL
+  
+  #quito si tiene NAs en las columnas numericas
+  diario=diario[complete.cases(diario[,6:9]),]
+  
+  #vuelvo esta columna caracter porque sino me tira error
+  diario$CODPROD=as.character(diario$CODPROD)
+  
+  #bind con la tabla principal
+  table=rbind(table,diario)
+  
+}
+
