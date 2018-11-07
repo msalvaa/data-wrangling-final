@@ -62,7 +62,7 @@ for(file in files){
   diario=merge(diario,dicc,by="COD",all.x = TRUE)
   
   #eliminar la columna que se hizo
-  diario$Codigo=NULL
+  diario$COD=NULL
   
   #quito si tiene NAs en las columnas numericas
   diario=diario[complete.cases(diario[,6:9]),]
