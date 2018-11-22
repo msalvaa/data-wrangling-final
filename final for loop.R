@@ -64,7 +64,7 @@ for(file in files){
   diario$Codigo=NULL
   
   #quito si tiene NAs en las columnas numericas
-  diario=diario[complete.cases(diario[,6:9]),]
+  diario=diario[complete.cases(diario[,6:8]),]
   
   #vuelvo esta columna caracter porque sino me tira error
   diario$CODPROD=as.character(diario$CODPROD)
