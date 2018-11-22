@@ -2,7 +2,7 @@ library(stringr)
 library(lubridate)
 
 #files para hacer el loop
-files <- list.files(path="C:/Users/Toshiba UL/Dropbox/semestre 8/data/final/0118-12", pattern="*.csv", full.names=TRUE, recursive=FALSE)
+files <- list.files(path="C:/Users/Toshiba UL/Dropbox/semestre 8/data/final", pattern="*.csv", full.names=TRUE, recursive=TRUE)
 
 #diccionario de codigos
 dicc = data.frame(matrix(vector(), 10, 2,
@@ -12,7 +12,7 @@ dicc$COD=c("01","02","03","04","05","06","07","08","23","63")
 dicc$ACABADO=c("MF","AN","BR","NE","CH","BL","MRT","AI","MNT","CT")
 
 #columnas que se necesitan
-nombres=c("FECHA","TIENDA","CODPROD","DESCRIPCION","MEDIDA","MT2","UNI","VENTA")
+nombres=c("FECHA","TIENDA","CODPROD","DESCRIPCION","MEDIDA","UNI","VENTA")
 
 #df donde se va a guardar todo
 table=data.frame()
@@ -35,8 +35,6 @@ for(file in files){
   colnames(diario)[which(apply(diario, 2, function(x) any(grepl("DESCRIPCION", x))))[[2]]+9]="DESCRIPCION"
   
   colnames(diario)[which(apply(diario, 2, function(x) any(grepl("MEDIDA", x))))[[2]]+9]="MEDIDA"
-  
-  colnames(diario)[which(apply(diario, 2, function(x) any(grepl("MT2", x))))[[2]]+9]="MT2"
   
   colnames(diario)[which(apply(diario, 2, function(x) any(grepl("UNI", x))))[[2]]+9]="UNI"
   
@@ -63,6 +61,7 @@ for(file in files){
   
   #eliminar la columna que se hizo
   diario$COD=NULL
+  diario$Codigo=NULL
   
   #quito si tiene NAs en las columnas numericas
   diario=diario[complete.cases(diario[,6:9]),]
@@ -70,8 +69,10 @@ for(file in files){
   #vuelvo esta columna caracter porque sino me tira error
   diario$CODPROD=as.character(diario$CODPROD)
   
+  
   #bind con la tabla principal
   table=rbind(table,diario)
   
 }
 
+write.csv(file="C:/Users/Toshiba UL/Dropbox/semestre 8/data/final/tabla.csv",x=table)
