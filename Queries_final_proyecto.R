@@ -77,3 +77,13 @@ UniXacabado <- df %>%
 
 #View(UniXacabado) 
 
+###Ventas de acuerdo a un rango de fechas
+Datos_fechas <- df[df$FECHA >= "2018-01-02" & df$FECHA <= "2018-01-10",] 
+
+
+####Ya a partir de esto se puede hacer cualquier querie que se quiera saber entre esas fechas.
+#  select(VENTA, DESCRIPCION) %>%
+#  group_by(DESCRIPCION) %>%
+#  summarise(TOTAL_VENTA = sum(VENTA))
+
+#View(Datos_fechas)
