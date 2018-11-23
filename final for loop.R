@@ -6,6 +6,7 @@ files <- list.files(path="C:/Users/Toshiba UL/Dropbox/semestre 8/data/final", pa
 #files <- list.files(path = "D:/geord/Docs/Data Wrangling/final/files")
 
 # ----------------------------------- Base de datos ---------------------------------------------------------------------------
+library(RMySQL)
 connection_name <- "dstrackdb.cwvcmlr71hlu.us-east-1.rds.amazonaws.com"
 db_name <- "data_wrangling"
 user <- "dstrack"
