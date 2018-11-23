@@ -5,6 +5,19 @@ library(lubridate)
 files <- list.files(path="C:/Users/Toshiba UL/Dropbox/semestre 8/data/final", pattern="*.csv", full.names=TRUE, recursive=TRUE)
 #files <- list.files(path = "D:/geord/Docs/Data Wrangling/final/files")
 
+# ----------------------------------- Base de datos ---------------------------------------------------------------------------
+connection_name <- "dstrackdb.cwvcmlr71hlu.us-east-1.rds.amazonaws.com"
+db_name <- "data_wrangling"
+user <- "dstrack"
+password <- "4es-27c-CdV-TEe"
+drv = dbDriver("MySQL")
+
+mydb = dbConnect(drv,host=connection_name,dbname=db_name,user=user,pass=password)
+
+files <- dbListTables(mydb)
+
+# -----------------------------------------------------------------------------------------------------------------------------
+
 #diccionario de codigos
 dicc = data.frame(matrix(vector(), 10, 2,
                          dimnames=list(c(), c("Codigo", "ACABADO"))),
@@ -24,22 +37,33 @@ library(readxl)
 ext <- "any"
 
 transformar <- function(archivoCualquiera){
-  if (isTRUE(str_detect(ext,"any"))){
+  if (isTRUE(str_detect(ext,"any"))){ # esta condicion establece la extensión de cualquier archivo físico
     punto = regexpr("\\.", archivoCualquiera)
-    ext = substr(archivoCualquiera, punto+1, str_length(archivoCualquiera))
-    ext = toupper(ext)
+    if (punto>0){
+      ext = substr(archivoCualquiera, punto+1, str_length(archivoCualquiera))
+      ext = toupper(ext)  
+    }
+    else{
+      ext = "db"
+    }
   }
-  punto = regexpr("\\.", archivoCualquiera)
-  if (ext == "XLSX"){
-    dataSample <- read_excel(archivoCualquiera, col_names = FALSE)
-  } else if (ext == "CSV"){
-    dataSample <- read.csv(archivoCualquiera, header = FALSE, stringsAsFactors=FALSE )
-  } else if (ext == "TXT"){
-    #dataSample <- read.table(archivoCualquiera, header = FALSE, sep = ",")
-    dataSample <-read.delim(textConnection(archivoCualquiera),header=FALSE,sep=":",strip.white=TRUE, stringsAsFactors = FALSE)
-    #cols<-levels(dataSample[,'V1'])
-    #dataSample <-data.frame(sapply(cols,function(x) {dataSample['V2'][dataSample['V1']==x]}, USE.NAMES=TRUE)) # normaliza en columnas
+  if (isFALSE(str_detect(ext, "db"))){ # si es un archivo físico entonces procede
+    punto = regexpr("\\.", archivoCualquiera)
+    if (ext == "XLSX"){
+      dataSample <- read_excel(archivoCualquiera, col_names = FALSE)
+    } else if (ext == "CSV"){
+      dataSample <- read.csv(archivoCualquiera, header = FALSE, stringsAsFactors=FALSE )
+    } else if (ext == "TXT"){
+      #dataSample <- read.table(archivoCualquiera, header = FALSE, sep = ",")
+      dataSample <-read.delim(textConnection(archivoCualquiera),header=FALSE,sep=":",strip.white=TRUE, stringsAsFactors = FALSE)
+      #cols<-levels(dataSample[,'V1'])
+      #dataSample <-data.frame(sapply(cols,function(x) {dataSample['V2'][dataSample['V1']==x]}, USE.NAMES=TRUE)) # normaliza en columnas
+    } 
   }
+  if (isTRUE(str_detect(ext, "db"))){
+    dataSample <- dbReadTable(mydb, archivoCualquiera)
+  }
+  
   return(dataSample)
 }
 
