@@ -2,7 +2,8 @@ library(stringr)
 library(lubridate)
 
 #files para hacer el loop
-files <- list.files(path="C:/Users/Toshiba UL/Dropbox/semestre 8/data/final", pattern="*.csv", full.names=TRUE, recursive=TRUE)
+#files <- list.files(path="C:/Users/Toshiba UL/Dropbox/semestre 8/data/final", pattern="*.csv", full.names=TRUE, recursive=TRUE)
+files <- list.files(path = "D:/geord/Docs/Data Wrangling/final/files")
 
 #diccionario de codigos
 dicc = data.frame(matrix(vector(), 10, 2,
@@ -17,9 +18,38 @@ nombres=c("FECHA","TIENDA","CODPROD","DESCRIPCION","MEDIDA","UNI","VENTA")
 #df donde se va a guardar todo
 table=data.frame()
 
+# FUNCION QUE RECIBE CUALQUIER ARCHIVO .TXT, .CSV, .XLSX Y LO TRANSFORMA A UN DATA FRAME
+library(readxl)
+
+ext <- "any"
+
+transformar <- function(archivoCualquiera){
+  if (isTRUE(str_detect(ext,"any"))){
+    punto = regexpr("\\.", archivoCualquiera)
+    ext = substr(archivoCualquiera, punto+1, str_length(archivoCualquiera))
+    ext = toupper(ext)
+  }
+  punto = regexpr("\\.", archivoCualquiera)
+  if (ext == "XLSX"){
+    dataSample <- read_excel(archivoCualquiera, col_names = FALSE)
+  } else if (ext == "CSV"){
+    dataSample <- read.csv(archivoCualquiera, header = FALSE, stringsAsFactors=FALSE )
+  } else if (ext == "TXT"){
+    #dataSample <- read.table(archivoCualquiera, header = FALSE, sep = ",")
+    dataSample <-read.delim(textConnection(archivoCualquiera),header=FALSE,sep=":",strip.white=TRUE, stringsAsFactors = FALSE)
+    #cols<-levels(dataSample[,'V1'])
+    #dataSample <-data.frame(sapply(cols,function(x) {dataSample['V2'][dataSample['V1']==x]}, USE.NAMES=TRUE)) # normaliza en columnas
+  }
+  return(dataSample)
+}
+
+
+
 #loop
 for(file in files){
-  diario <- read.csv(file,header=FALSE)
+  #diario <- read.csv(file,header=FALSE)
+  diario <- transformar(file)
+  
   #para la columna de fecha
   name <- basename(file)
   diario$FECHA=dmy(substr(name,start=1,stop=6))
@@ -75,6 +105,7 @@ for(file in files){
   
 }
 
+View(table)
 write.csv(file="C:/Users/Toshiba UL/Dropbox/semestre 8/data/final/tabla.csv",x=table)
                         
                                
