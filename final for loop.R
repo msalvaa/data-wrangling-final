@@ -2,8 +2,8 @@ library(stringr)
 library(lubridate)
 
 #files para hacer el loop
-#files <- list.files(path="C:/Users/Toshiba UL/Dropbox/semestre 8/data/final", pattern="*.csv", full.names=TRUE, recursive=TRUE)
-files <- list.files(path = "D:/geord/Docs/Data Wrangling/final/files")
+files <- list.files(path="C:/Users/Toshiba UL/Dropbox/semestre 8/data/final", pattern="*.csv", full.names=TRUE, recursive=TRUE)
+#files <- list.files(path = "D:/geord/Docs/Data Wrangling/final/files")
 
 #diccionario de codigos
 dicc = data.frame(matrix(vector(), 10, 2,
@@ -107,14 +107,14 @@ for(file in files){
 
 View(table)
 write.csv(file="C:/Users/Toshiba UL/Dropbox/semestre 8/data/final/tabla.csv",x=table)
-                        
-                               
-                               
-                               
-                               
+
+
+
+
+
 #tabla de NAs en acabado
 library(dplyr)
-                               
+
 na=table%>%
   filter(is.na(ACABADO))
-                            
+
