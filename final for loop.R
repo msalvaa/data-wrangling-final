@@ -76,3 +76,14 @@ for(file in files){
 }
 
 write.csv(file="C:/Users/Toshiba UL/Dropbox/semestre 8/data/final/tabla.csv",x=table)
+                        
+                               
+                               
+                               
+                               
+#tabla de NAs en acabado
+library(dplyr)
+                               
+na=table%>%
+  filter(is.na(ACABADO))
+                            
