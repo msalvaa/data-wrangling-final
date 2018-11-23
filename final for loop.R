@@ -2,10 +2,15 @@ library(stringr)
 library(lubridate)
 
 #files para hacer el loop
-files <- list.files(path="C:/Users/Toshiba UL/Dropbox/semestre 8/data/final", pattern="*.csv", full.names=TRUE, recursive=TRUE)
-#files <- list.files(path = "D:/geord/Docs/Data Wrangling/final/files")
+# --------------------------------------------------------------------------------------------------------------------------------
+# ------------------------------------ Si no se va a utilizar la base de datos, EJECUTAR este bloque y no el de la base de datos ----
+# --------------------------------------------------------------------------------------------------------------------------------
+
+#files <- list.files(path="C:/Users/Toshiba UL/Dropbox/semestre 8/data/final", pattern="*.csv", full.names=TRUE, recursive=TRUE)
+files <- list.files(path = "D:/geord/Docs/Data Wrangling/final/files")
 
 # ----------------------------------- Base de datos ---------------------------------------------------------------------------
+
 library(RMySQL)
 connection_name <- "dstrackdb.cwvcmlr71hlu.us-east-1.rds.amazonaws.com"
 db_name <- "data_wrangling"
@@ -17,7 +22,7 @@ mydb = dbConnect(drv,host=connection_name,dbname=db_name,user=user,pass=password
 
 files <- dbListTables(mydb)
 
-# -----------------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------- Correr todo esto -------------------------------------------------------
 
 #diccionario de codigos
 dicc = data.frame(matrix(vector(), 10, 2,
@@ -32,7 +37,7 @@ nombres=c("FECHA","TIENDA","CODPROD","DESCRIPCION","MEDIDA","UNI","VENTA")
 #df donde se va a guardar todo
 table=data.frame()
 
-# FUNCION QUE RECIBE CUALQUIER ARCHIVO .TXT, .CSV, .XLSX Y LO TRANSFORMA A UN DATA FRAME
+# FUNCION QUE RECIBE CUALQUIER ARCHIVO .TXT, .CSV, .XLSX Y LO TRANSFORMA A UN DATA FRAME --------------------------------------
 library(readxl)
 
 ext <- "any"
@@ -70,7 +75,8 @@ transformar <- function(archivoCualquiera){
 
 
 
-#loop
+#loop LIMPIEZA -------------------------------------------------------------------------------------------------------------3
+
 for(file in files){
   #diario <- read.csv(file,header=FALSE)
   diario <- transformar(file)
@@ -131,15 +137,6 @@ for(file in files){
 }
 
 View(table)
+
+# guardar la data limpia
 write.csv(file="C:/Users/Toshiba UL/Dropbox/semestre 8/data/final/tabla.csv",x=table)
-
-
-
-
-
-#tabla de NAs en acabado
-library(dplyr)
-
-na=table%>%
-  filter(is.na(ACABADO))
-
